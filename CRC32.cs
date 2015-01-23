@@ -1,104 +1,94 @@
 ﻿using System;
+using System.Security.Cryptography;
 
 namespace FileChecksum
 {
-	class CRC32
+	public abstract class CRC32 : HashAlgorithm
 	{
-		private const uint kCrcPoly = 0xEDB88320;
-		private const uint kInitial = 0xFFFFFFFF;
-		private static readonly uint[] Table;
-		private const uint CRC_NUM_TABLES = 8;
-
-		static CRC32()
-		{
-			unchecked
-			{
-				Table = new uint[256 * CRC_NUM_TABLES];
-				uint i;
-				for (i = 0; i < 256; i++)
-				{
-					uint r = i;
-					for (int j = 0; j < 8; j++)
-						r = (r >> 1) ^ (kCrcPoly & ~((r & 1) - 1));
-					Table[i] = r;
-				}
-				for (; i < 256 * CRC_NUM_TABLES; i++)
-				{
-					uint r = Table[i - 256];
-					Table[i] = Table[r & 0xFF] ^ (r >> 8);
-				}
-			}
-		}
-
-		private uint value;
+		public UInt32 CRC32Hash { get; protected set; }
 
 		public CRC32()
+			: base()
 		{
-			value = kInitial;
+			this.HashSizeValue = 32;
 		}
 
-		public int Value
+		new public static CRC32 Create()
 		{
-			get { return (int)~value; }
+			return new CRC32Managed();
 		}
 
-		public void UpdateByte(byte b)
+		public static CRC32 Create(UInt32 polynomial)
 		{
-			value = (value >> 8) ^ Table[(byte)value ^ b];
+			return new CRC32Managed(polynomial);
 		}
 
-		public void Update(byte[] data, int offset, int count)
+		new public static CRC32 Create(String hashName)
 		{
-			if (count == 0) return;
+			throw new NotImplementedException();
+		}
+	}
 
-			var table = CRC32.Table;
+	public class CRC32Managed : CRC32
+	{
+		private UInt32[] crc32Table = new UInt32[256];
+		private UInt32 crc32Result;
 
-			uint crc = value;
+		public CRC32Managed()
+			: this(0xEDB88320)
+		{
+		}
 
-			for (; (offset & 7) != 0 && count != 0; count--)
-				crc = (crc >> 8) ^ table[(byte)crc ^ data[offset++]];
-
-			if (count >= 8)
+		public CRC32Managed(UInt32 polynomial)
+			: base()
+		{
+			for (UInt32 i = 0; i < 256; i++)
 			{
-				int to = (count - 8) & ~7;
-				count -= to;
-				to += offset;
-
-				while (offset != to)
+				UInt32 crc32 = i;
+				for (int j = 8; j > 0; j--)
 				{
-					crc ^= (uint)(data[offset] + (data[offset + 1] << 8) + (data[offset + 2] << 16) + (data[offset + 3] << 24));
-					uint high = (uint)(data[offset + 4] + (data[offset + 5] << 8) + (data[offset + 6] << 16) + (data[offset + 7] << 24));
-					offset += 8;
-
-					crc = table[(byte)crc + 0x700]
-						^ table[(byte)(crc >>= 8) + 0x600]
-						^ table[(byte)(crc >>= 8) + 0x500]
-						^ table[/*(byte)*/(crc >> 8) + 0x400]
-						^ table[(byte)(high) + 0x300]
-						^ table[(byte)(high >>= 8) + 0x200]
-						^ table[(byte)(high >>= 8) + 0x100]
-						^ table[/*(byte)*/(high >> 8) + 0x000];
+					if ((crc32 & 1) == 1)
+					{
+						crc32 = (crc32 >> 1) ^ polynomial;
+					}
+					else
+					{
+						crc32 >>= 1;
+					}
 				}
+				crc32Table[i] = crc32;
 			}
 
-			while (count-- != 0)
+			Initialize();
+		}
+
+		public override bool CanReuseTransform { get { return true; } }
+
+		public override bool CanTransformMultipleBlocks { get { return true; } }
+
+		public override void Initialize()
+		{
+			this.crc32Result = 0xFFFFFFFF;
+		}
+
+		protected override void HashCore(Byte[] array, int start, int size)
+		{
+			int end = start + size;
+			for (int i = start; i < end; i++)
 			{
-				crc = (crc >> 8) ^ table[(byte)crc ^ data[offset++]];
+				this.crc32Result = (this.crc32Result >> 8) ^ this.crc32Table[array[i] ^ (this.crc32Result & 0x000000FF)];
 			}
-
-			value = crc;
 		}
 
-		static public int ComputeHash(byte[] data, int offset, int size)
+		protected override Byte[] HashFinal()
 		{
-			var crc = new CRC32();
-			crc.Update(data, offset, size);
-			return crc.Value;
-		}
+			this.crc32Result = ~this.crc32Result;
 
-		static public int ComputeHash(byte[] data)
-		{
-			return ComputeHash(data, 0, data.Length);
+			this.CRC32Hash = this.crc32Result;
+
+			this.HashValue = BitConverter.GetBytes(this.crc32Result);
+
+			return this.HashValue;
 		}
 	}
 }

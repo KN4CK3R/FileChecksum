@@ -12,48 +12,81 @@ namespace FileChecksum
 {
 	public partial class MainForm : Form
 	{
+		class ChecksumResult
+		{
+			public string MD5;
+			public string SHA1;
+			public string SHA256;
+			public string CRC32;
+		}
+
 		public MainForm(string path)
 		{
 			InitializeComponent();
 
+			md5TextBox.Text =
+			sha1TextBox.Text =
+			sha256TextBox.Text =
+			crc32TextBox.Text = "please wait";
+
 			pathLabel.Text = path;
 
-			var data = File.ReadAllBytes(path);
-
-			CalculateChecksumAsync(delegate(object sender, DoWorkEventArgs e)
-			{
-				using (var hash = new MD5CryptoServiceProvider())
-				{
-					e.Result = hash.ComputeHash(data);
-				}
-			}, md5TextBox);
-			CalculateChecksumAsync(delegate(object sender, DoWorkEventArgs e)
-			{
-				using (var hash = new SHA1CryptoServiceProvider())
-				{
-					e.Result = hash.ComputeHash(data);
-				}
-			}, sha1TextBox);
-			CalculateChecksumAsync(delegate(object sender, DoWorkEventArgs e)
-			{
-				using (var hash = new SHA256CryptoServiceProvider())
-				{
-					e.Result = hash.ComputeHash(data);
-				}
-			}, sha256TextBox);
-			CalculateChecksumAsync(delegate(object sender, DoWorkEventArgs e)
-			{
-				e.Result = BitConverter.GetBytes(CRC32.ComputeHash(data)).Reverse();
-			}, crc32TextBox);
-		}
-
-		private void CalculateChecksumAsync(Action<object, DoWorkEventArgs> doWork, TextBox result)
-		{
 			var worker = new BackgroundWorker();
-			worker.DoWork += new DoWorkEventHandler(doWork);
+			worker.DoWork += delegate(object sender, DoWorkEventArgs e)
+			{
+				using (var f = File.OpenRead(path))
+				{
+					using (var md5 = MD5.Create())
+					{
+						using (var sha1 = SHA1.Create())
+						{
+							using (var sha256 = SHA256.Create())
+							{
+								using (var crc32 = CRC32.Create())
+								{
+									var buffer = new byte[4096];
+									int count;
+									while ((count = f.Read(buffer, 0, buffer.Length)) > 0)
+									{
+										int md5Offset = 0;
+										while (md5Offset < count)
+											md5Offset += md5.TransformBlock(buffer, md5Offset , count - md5Offset, buffer, md5Offset);
+										int sha1Offset = 0;
+										while (sha1Offset < count)
+											sha1Offset += sha1.TransformBlock(buffer, sha1Offset, count - sha1Offset, buffer, sha1Offset);
+										int sha256Offset = 0;
+										while (sha256Offset < count)
+											sha256Offset += sha256.TransformBlock(buffer, sha256Offset, count - sha256Offset, buffer, sha256Offset);
+										int crc32Offset = 0;
+										while (crc32Offset < count)
+											crc32Offset += crc32.TransformBlock(buffer, crc32Offset, count - crc32Offset, buffer, crc32Offset);
+									}
+
+									md5.TransformFinalBlock(buffer, 0, 0);
+									sha1.TransformFinalBlock(buffer, 0, 0);
+									sha256.TransformFinalBlock(buffer, 0, 0);
+									crc32.TransformFinalBlock(buffer, 0, 0);
+
+									e.Result = new ChecksumResult()
+									{
+										MD5 = ToHexString(md5.Hash),
+										SHA1 = ToHexString(sha1.Hash),
+										SHA256 = ToHexString(sha256.Hash),
+										CRC32 = string.Format("{0:X4}", crc32.CRC32Hash)
+									};
+								}
+							}
+						}
+					}
+				}
+			};
 			worker.RunWorkerCompleted += delegate(object sender, RunWorkerCompletedEventArgs e)
 			{
-				result.Text = ToHexString((IEnumerable<byte>)e.Result);
+				var result = (ChecksumResult)e.Result;
+				md5TextBox.Text = result.MD5;
+				sha1TextBox.Text = result.SHA1;
+				sha256TextBox.Text = result.SHA256;
+				crc32TextBox.Text = result.CRC32;
 			};
 			worker.RunWorkerAsync();
 		}
@@ -63,7 +96,7 @@ namespace FileChecksum
 			var sb = new StringBuilder();
 			foreach (byte b in data)
 			{
-				sb.Append(b.ToString("X2"));
+				sb.AppendFormat("{0:X2}", b);
 			}
 			return sb.ToString();
 		}
@@ -89,16 +122,29 @@ namespace FileChecksum
 			var ofd = new OpenFileDialog();
 			if (ofd.ShowDialog() == DialogResult.OK)
 			{
-				var data = File.ReadAllBytes(ofd.FileName);
-				using (var sha265 = new SHA256CryptoServiceProvider())
+				using (var f = File.OpenRead(ofd.FileName))
 				{
-					if (ToHexString(sha265.ComputeHash(data)) == sha256TextBox.Text)
+					using (var sha256 = SHA256.Create())
 					{
-						MessageBox.Show("Files match!");
-					}
-					else
-					{
-						MessageBox.Show("Files are different!");
+						var buffer = new byte[4096];
+						int count;
+						while ((count = f.Read(buffer, 0, buffer.Length)) > 0)
+						{
+							int sha256Offset = 0;
+							while (sha256Offset < count)
+								sha256Offset += sha256.TransformBlock(buffer, sha256Offset, count - sha256Offset, buffer, sha256Offset);
+						}
+
+						sha256.TransformFinalBlock(buffer, 0, 0);
+
+						if (ToHexString(sha256.Hash) == sha256TextBox.Text)
+						{
+							MessageBox.Show("Files match!");
+						}
+						else
+						{
+							MessageBox.Show("Files are different!");
+						}
 					}
 				}
 			}

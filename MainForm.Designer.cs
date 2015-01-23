@@ -46,7 +46,6 @@
 			this.pathLabel.Name = "pathLabel";
 			this.pathLabel.Size = new System.Drawing.Size(478, 13);
 			this.pathLabel.TabIndex = 0;
-			this.pathLabel.Text = "C:\\asd\\asd\\d";
 			this.pathLabel.Paint += new System.Windows.Forms.PaintEventHandler(this.pathLabel_Paint);
 			// 
 			// md5Label
@@ -65,6 +64,7 @@
 			this.md5TextBox.ReadOnly = true;
 			this.md5TextBox.Size = new System.Drawing.Size(425, 20);
 			this.md5TextBox.TabIndex = 2;
+			this.md5TextBox.TabStop = false;
 			// 
 			// sha1TextBox
 			// 
@@ -73,6 +73,7 @@
 			this.sha1TextBox.ReadOnly = true;
 			this.sha1TextBox.Size = new System.Drawing.Size(425, 20);
 			this.sha1TextBox.TabIndex = 4;
+			this.sha1TextBox.TabStop = false;
 			// 
 			// sha1Label
 			// 
@@ -90,6 +91,7 @@
 			this.sha256TextBox.ReadOnly = true;
 			this.sha256TextBox.Size = new System.Drawing.Size(425, 20);
 			this.sha256TextBox.TabIndex = 8;
+			this.sha256TextBox.TabStop = false;
 			// 
 			// sha256Label
 			// 
@@ -107,6 +109,7 @@
 			this.crc32TextBox.ReadOnly = true;
 			this.crc32TextBox.Size = new System.Drawing.Size(425, 20);
 			this.crc32TextBox.TabIndex = 10;
+			this.crc32TextBox.TabStop = false;
 			// 
 			// crc32Label
 			// 
@@ -123,6 +126,7 @@
 			this.compareButton.Name = "compareButton";
 			this.compareButton.Size = new System.Drawing.Size(476, 23);
 			this.compareButton.TabIndex = 11;
+			this.compareButton.TabStop = false;
 			this.compareButton.Text = "Compare with ...";
 			this.compareButton.UseVisualStyleBackColor = true;
 			this.compareButton.Click += new System.EventHandler(this.compareButton_Click);
