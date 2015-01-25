@@ -14,11 +14,13 @@ namespace FileChecksum
 		{
 			if (args.Length != 1)
 			{
+				MessageBox.Show("Usage: " + Path.GetFileName(Application.ExecutablePath) + " <Path to file>");
 				return;
 			}
 
 			if (!File.Exists(args[0]))
 			{
+				MessageBox.Show("Error: File not found!\n\n" + args[0]);
 				return;
 			}
 
