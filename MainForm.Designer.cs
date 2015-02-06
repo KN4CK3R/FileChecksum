@@ -38,6 +38,7 @@
 			this.crc32TextBox = new System.Windows.Forms.TextBox();
 			this.crc32Label = new System.Windows.Forms.Label();
 			this.compareButton = new System.Windows.Forms.Button();
+			this.clipBoardButton = new System.Windows.Forms.Button();
 			this.SuspendLayout();
 			// 
 			// pathLabel
@@ -122,20 +123,33 @@
 			// 
 			// compareButton
 			// 
+			this.compareButton.Enabled = false;
 			this.compareButton.Location = new System.Drawing.Point(8, 134);
 			this.compareButton.Name = "compareButton";
-			this.compareButton.Size = new System.Drawing.Size(476, 23);
+			this.compareButton.Size = new System.Drawing.Size(318, 23);
 			this.compareButton.TabIndex = 11;
 			this.compareButton.TabStop = false;
 			this.compareButton.Text = "Compare with ...";
 			this.compareButton.UseVisualStyleBackColor = true;
 			this.compareButton.Click += new System.EventHandler(this.compareButton_Click);
 			// 
+			// clipBoardButton
+			// 
+			this.clipBoardButton.Enabled = false;
+			this.clipBoardButton.Location = new System.Drawing.Point(332, 134);
+			this.clipBoardButton.Name = "clipBoardButton";
+			this.clipBoardButton.Size = new System.Drawing.Size(152, 23);
+			this.clipBoardButton.TabIndex = 12;
+			this.clipBoardButton.Text = "Copy to Clipboard";
+			this.clipBoardButton.UseVisualStyleBackColor = true;
+			this.clipBoardButton.Click += new System.EventHandler(this.clipBoardButton_Click);
+			// 
 			// MainForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(496, 169);
+			this.Controls.Add(this.clipBoardButton);
 			this.Controls.Add(this.compareButton);
 			this.Controls.Add(this.crc32TextBox);
 			this.Controls.Add(this.crc32Label);
@@ -166,6 +180,7 @@
 		private System.Windows.Forms.TextBox crc32TextBox;
 		private System.Windows.Forms.Label crc32Label;
 		private System.Windows.Forms.Button compareButton;
+		private System.Windows.Forms.Button clipBoardButton;
 	}
 }
 
