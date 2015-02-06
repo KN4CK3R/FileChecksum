@@ -87,6 +87,8 @@ namespace FileChecksum
 				sha1TextBox.Text = result.SHA1;
 				sha256TextBox.Text = result.SHA256;
 				crc32TextBox.Text = result.CRC32;
+
+				compareButton.Enabled = clipBoardButton.Enabled = true;
 			};
 			worker.RunWorkerAsync();
 		}
@@ -148,6 +150,23 @@ namespace FileChecksum
 					}
 				}
 			}
+		}
+
+		private void clipBoardButton_Click(object sender, EventArgs e)
+		{
+			var sb = new StringBuilder();
+			sb.Append("File: ");
+			sb.AppendLine(Path.GetFileName(pathLabel.Text));
+			sb.Append("MD5: ");
+			sb.AppendLine(md5TextBox.Text);
+			sb.Append("SHA1: ");
+			sb.AppendLine(sha1TextBox.Text);
+			sb.Append("SHA256: ");
+			sb.AppendLine(sha256TextBox.Text);
+			sb.Append("CRC32: ");
+			sb.Append(crc32TextBox.Text);
+
+			Clipboard.SetText(sb.ToString());
 		}
 	}
 }
