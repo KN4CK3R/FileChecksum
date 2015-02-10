@@ -28,6 +28,7 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
+			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
 			this.pathLabel = new System.Windows.Forms.Label();
 			this.md5Label = new System.Windows.Forms.Label();
 			this.md5TextBox = new System.Windows.Forms.TextBox();
@@ -39,6 +40,7 @@
 			this.crc32Label = new System.Windows.Forms.Label();
 			this.compareButton = new System.Windows.Forms.Button();
 			this.clipBoardButton = new System.Windows.Forms.Button();
+			this.verifyPGPButton = new System.Windows.Forms.Button();
 			this.SuspendLayout();
 			// 
 			// pathLabel
@@ -126,7 +128,7 @@
 			this.compareButton.Enabled = false;
 			this.compareButton.Location = new System.Drawing.Point(8, 134);
 			this.compareButton.Name = "compareButton";
-			this.compareButton.Size = new System.Drawing.Size(318, 23);
+			this.compareButton.Size = new System.Drawing.Size(163, 23);
 			this.compareButton.TabIndex = 11;
 			this.compareButton.TabStop = false;
 			this.compareButton.Text = "Compare with ...";
@@ -144,11 +146,23 @@
 			this.clipBoardButton.UseVisualStyleBackColor = true;
 			this.clipBoardButton.Click += new System.EventHandler(this.clipBoardButton_Click);
 			// 
+			// verifyPGPButton
+			// 
+			this.verifyPGPButton.Enabled = false;
+			this.verifyPGPButton.Location = new System.Drawing.Point(177, 134);
+			this.verifyPGPButton.Name = "verifyPGPButton";
+			this.verifyPGPButton.Size = new System.Drawing.Size(152, 23);
+			this.verifyPGPButton.TabIndex = 13;
+			this.verifyPGPButton.Text = "Verify PGP Signature";
+			this.verifyPGPButton.UseVisualStyleBackColor = true;
+			this.verifyPGPButton.Click += new System.EventHandler(this.verifyPGPButton_Click);
+			// 
 			// MainForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(496, 169);
+			this.Controls.Add(this.verifyPGPButton);
 			this.Controls.Add(this.clipBoardButton);
 			this.Controls.Add(this.compareButton);
 			this.Controls.Add(this.crc32TextBox);
@@ -161,6 +175,7 @@
 			this.Controls.Add(this.md5Label);
 			this.Controls.Add(this.pathLabel);
 			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
+			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
 			this.Name = "MainForm";
 			this.Text = "FileChecksum";
 			this.ResumeLayout(false);
@@ -181,6 +196,7 @@
 		private System.Windows.Forms.Label crc32Label;
 		private System.Windows.Forms.Button compareButton;
 		private System.Windows.Forms.Button clipBoardButton;
+		private System.Windows.Forms.Button verifyPGPButton;
 	}
 }
 

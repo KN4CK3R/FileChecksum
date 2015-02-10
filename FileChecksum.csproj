@@ -48,6 +48,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CRC32.cs" />
+    <Compile Include="IniParser.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
