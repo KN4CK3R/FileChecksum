@@ -41,6 +41,8 @@
 			this.compareButton = new System.Windows.Forms.Button();
 			this.clipBoardButton = new System.Windows.Forms.Button();
 			this.verifyPGPButton = new System.Windows.Forms.Button();
+			this.sha512TextBox = new System.Windows.Forms.TextBox();
+			this.sha512Label = new System.Windows.Forms.Label();
 			this.SuspendLayout();
 			// 
 			// pathLabel
@@ -65,7 +67,7 @@
 			this.md5TextBox.Location = new System.Drawing.Point(60, 30);
 			this.md5TextBox.Name = "md5TextBox";
 			this.md5TextBox.ReadOnly = true;
-			this.md5TextBox.Size = new System.Drawing.Size(425, 20);
+			this.md5TextBox.Size = new System.Drawing.Size(424, 20);
 			this.md5TextBox.TabIndex = 2;
 			this.md5TextBox.TabStop = false;
 			// 
@@ -74,7 +76,7 @@
 			this.sha1TextBox.Location = new System.Drawing.Point(60, 56);
 			this.sha1TextBox.Name = "sha1TextBox";
 			this.sha1TextBox.ReadOnly = true;
-			this.sha1TextBox.Size = new System.Drawing.Size(425, 20);
+			this.sha1TextBox.Size = new System.Drawing.Size(424, 20);
 			this.sha1TextBox.TabIndex = 4;
 			this.sha1TextBox.TabStop = false;
 			// 
@@ -107,7 +109,7 @@
 			// 
 			// crc32TextBox
 			// 
-			this.crc32TextBox.Location = new System.Drawing.Point(59, 108);
+			this.crc32TextBox.Location = new System.Drawing.Point(59, 148);
 			this.crc32TextBox.Name = "crc32TextBox";
 			this.crc32TextBox.ReadOnly = true;
 			this.crc32TextBox.Size = new System.Drawing.Size(425, 20);
@@ -117,7 +119,7 @@
 			// crc32Label
 			// 
 			this.crc32Label.AutoSize = true;
-			this.crc32Label.Location = new System.Drawing.Point(5, 111);
+			this.crc32Label.Location = new System.Drawing.Point(5, 151);
 			this.crc32Label.Name = "crc32Label";
 			this.crc32Label.Size = new System.Drawing.Size(44, 13);
 			this.crc32Label.TabIndex = 9;
@@ -126,7 +128,7 @@
 			// compareButton
 			// 
 			this.compareButton.Enabled = false;
-			this.compareButton.Location = new System.Drawing.Point(8, 134);
+			this.compareButton.Location = new System.Drawing.Point(8, 174);
 			this.compareButton.Name = "compareButton";
 			this.compareButton.Size = new System.Drawing.Size(163, 23);
 			this.compareButton.TabIndex = 11;
@@ -138,7 +140,7 @@
 			// clipBoardButton
 			// 
 			this.clipBoardButton.Enabled = false;
-			this.clipBoardButton.Location = new System.Drawing.Point(332, 134);
+			this.clipBoardButton.Location = new System.Drawing.Point(332, 174);
 			this.clipBoardButton.Name = "clipBoardButton";
 			this.clipBoardButton.Size = new System.Drawing.Size(152, 23);
 			this.clipBoardButton.TabIndex = 12;
@@ -149,7 +151,7 @@
 			// verifyPGPButton
 			// 
 			this.verifyPGPButton.Enabled = false;
-			this.verifyPGPButton.Location = new System.Drawing.Point(177, 134);
+			this.verifyPGPButton.Location = new System.Drawing.Point(177, 174);
 			this.verifyPGPButton.Name = "verifyPGPButton";
 			this.verifyPGPButton.Size = new System.Drawing.Size(152, 23);
 			this.verifyPGPButton.TabIndex = 13;
@@ -157,11 +159,32 @@
 			this.verifyPGPButton.UseVisualStyleBackColor = true;
 			this.verifyPGPButton.Click += new System.EventHandler(this.verifyPGPButton_Click);
 			// 
+			// sha512TextBox
+			// 
+			this.sha512TextBox.Location = new System.Drawing.Point(59, 108);
+			this.sha512TextBox.Multiline = true;
+			this.sha512TextBox.Name = "sha512TextBox";
+			this.sha512TextBox.ReadOnly = true;
+			this.sha512TextBox.Size = new System.Drawing.Size(425, 34);
+			this.sha512TextBox.TabIndex = 15;
+			this.sha512TextBox.TabStop = false;
+			// 
+			// sha512Label
+			// 
+			this.sha512Label.AutoSize = true;
+			this.sha512Label.Location = new System.Drawing.Point(5, 111);
+			this.sha512Label.Name = "sha512Label";
+			this.sha512Label.Size = new System.Drawing.Size(50, 13);
+			this.sha512Label.TabIndex = 14;
+			this.sha512Label.Text = "SHA512:";
+			// 
 			// MainForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(496, 169);
+			this.ClientSize = new System.Drawing.Size(496, 209);
+			this.Controls.Add(this.sha512TextBox);
+			this.Controls.Add(this.sha512Label);
 			this.Controls.Add(this.verifyPGPButton);
 			this.Controls.Add(this.clipBoardButton);
 			this.Controls.Add(this.compareButton);
@@ -197,6 +220,8 @@
 		private System.Windows.Forms.Button compareButton;
 		private System.Windows.Forms.Button clipBoardButton;
 		private System.Windows.Forms.Button verifyPGPButton;
+		private System.Windows.Forms.TextBox sha512TextBox;
+		private System.Windows.Forms.Label sha512Label;
 	}
 }
 

@@ -12,11 +12,12 @@ namespace FileChecksum
 {
 	public partial class MainForm : Form
 	{
-		class ChecksumResult
+		private class ChecksumResult
 		{
 			public string MD5;
 			public string SHA1;
 			public string SHA256;
+			public string SHA512;
 			public string CRC32;
 		}
 
@@ -27,6 +28,7 @@ namespace FileChecksum
 			md5TextBox.Text =
 			sha1TextBox.Text =
 			sha256TextBox.Text =
+			sha512TextBox.Text =
 			crc32TextBox.Text = "please wait";
 
 			pathLabel.Text = path;
@@ -42,38 +44,46 @@ namespace FileChecksum
 						{
 							using (var sha256 = SHA256.Create())
 							{
-								using (var crc32 = CRC32.Create())
+								using (var sha512 = SHA512.Create())
 								{
-									var buffer = new byte[4096];
-									int count;
-									while ((count = f.Read(buffer, 0, buffer.Length)) > 0)
+									using (var crc32 = CRC32.Create())
 									{
-										int md5Offset = 0;
-										while (md5Offset < count)
-											md5Offset += md5.TransformBlock(buffer, md5Offset , count - md5Offset, buffer, md5Offset);
-										int sha1Offset = 0;
-										while (sha1Offset < count)
-											sha1Offset += sha1.TransformBlock(buffer, sha1Offset, count - sha1Offset, buffer, sha1Offset);
-										int sha256Offset = 0;
-										while (sha256Offset < count)
-											sha256Offset += sha256.TransformBlock(buffer, sha256Offset, count - sha256Offset, buffer, sha256Offset);
-										int crc32Offset = 0;
-										while (crc32Offset < count)
-											crc32Offset += crc32.TransformBlock(buffer, crc32Offset, count - crc32Offset, buffer, crc32Offset);
+										var buffer = new byte[4096];
+										int count;
+										while ((count = f.Read(buffer, 0, buffer.Length)) > 0)
+										{
+											var md5Offset = 0;
+											while (md5Offset < count)
+												md5Offset += md5.TransformBlock(buffer, md5Offset, count - md5Offset, buffer, md5Offset);
+											var sha1Offset = 0;
+											while (sha1Offset < count)
+												sha1Offset += sha1.TransformBlock(buffer, sha1Offset, count - sha1Offset, buffer, sha1Offset);
+											var sha256Offset = 0;
+											while (sha256Offset < count)
+												sha256Offset += sha256.TransformBlock(buffer, sha256Offset, count - sha256Offset, buffer, sha256Offset);
+											var sha512Offset = 0;
+											while (sha512Offset < count)
+												sha512Offset += sha512.TransformBlock(buffer, sha512Offset, count - sha512Offset, buffer, sha512Offset);
+											var crc32Offset = 0;
+											while (crc32Offset < count)
+												crc32Offset += crc32.TransformBlock(buffer, crc32Offset, count - crc32Offset, buffer, crc32Offset);
+										}
+
+										md5.TransformFinalBlock(buffer, 0, 0);
+										sha1.TransformFinalBlock(buffer, 0, 0);
+										sha256.TransformFinalBlock(buffer, 0, 0);
+										sha512.TransformFinalBlock(buffer, 0, 0);
+										crc32.TransformFinalBlock(buffer, 0, 0);
+
+										e.Result = new ChecksumResult
+										{
+											MD5 = ToHexString(md5.Hash),
+											SHA1 = ToHexString(sha1.Hash),
+											SHA256 = ToHexString(sha256.Hash),
+											SHA512 = ToHexString(sha512.Hash),
+											CRC32 = $"{crc32.CRC32Hash:X4}"
+										};
 									}
-
-									md5.TransformFinalBlock(buffer, 0, 0);
-									sha1.TransformFinalBlock(buffer, 0, 0);
-									sha256.TransformFinalBlock(buffer, 0, 0);
-									crc32.TransformFinalBlock(buffer, 0, 0);
-
-									e.Result = new ChecksumResult()
-									{
-										MD5 = ToHexString(md5.Hash),
-										SHA1 = ToHexString(sha1.Hash),
-										SHA256 = ToHexString(sha256.Hash),
-										CRC32 = string.Format("{0:X4}", crc32.CRC32Hash)
-									};
 								}
 							}
 						}
@@ -86,6 +96,7 @@ namespace FileChecksum
 				md5TextBox.Text = result.MD5;
 				sha1TextBox.Text = result.SHA1;
 				sha256TextBox.Text = result.SHA256;
+				sha512TextBox.Text = result.SHA512;
 				crc32TextBox.Text = result.CRC32;
 
 				compareButton.Enabled = verifyPGPButton.Enabled = clipBoardButton.Enabled = true;
@@ -93,10 +104,10 @@ namespace FileChecksum
 			worker.RunWorkerAsync();
 		}
 
-		private string ToHexString(IEnumerable<byte> data)
+		private static string ToHexString(IEnumerable<byte> data)
 		{
 			var sb = new StringBuilder();
-			foreach (byte b in data)
+			foreach (var b in data)
 			{
 				sb.AppendFormat("{0:X2}", b);
 			}
@@ -105,8 +116,8 @@ namespace FileChecksum
 
 		private void pathLabel_Paint(object sender, PaintEventArgs e)
 		{
-			Label label = (Label)sender;
-			using (SolidBrush b = new SolidBrush(label.BackColor))
+			var label = (Label)sender;
+			using (var b = new SolidBrush(label.BackColor))
 			{
 				e.Graphics.FillRectangle(b, label.ClientRectangle);
 			}
@@ -116,7 +127,8 @@ namespace FileChecksum
 				label.Font,
 				label.ClientRectangle,
 				label.ForeColor,
-				TextFormatFlags.PathEllipsis);
+				TextFormatFlags.PathEllipsis
+			);
 		}
 
 		private void compareButton_Click(object sender, EventArgs e)
@@ -126,27 +138,20 @@ namespace FileChecksum
 			{
 				using (var f = File.OpenRead(ofd.FileName))
 				{
-					using (var sha256 = SHA256.Create())
+					using (var sha512 = SHA512.Create())
 					{
 						var buffer = new byte[4096];
 						int count;
 						while ((count = f.Read(buffer, 0, buffer.Length)) > 0)
 						{
-							int sha256Offset = 0;
-							while (sha256Offset < count)
-								sha256Offset += sha256.TransformBlock(buffer, sha256Offset, count - sha256Offset, buffer, sha256Offset);
+							var sha512Offset = 0;
+							while (sha512Offset < count)
+								sha512Offset += sha512.TransformBlock(buffer, sha512Offset, count - sha512Offset, buffer, sha512Offset);
 						}
 
-						sha256.TransformFinalBlock(buffer, 0, 0);
+						sha512.TransformFinalBlock(buffer, 0, 0);
 
-						if (ToHexString(sha256.Hash) == sha256TextBox.Text)
-						{
-							MessageBox.Show("Files match!");
-						}
-						else
-						{
-							MessageBox.Show("Files are different!");
-						}
+						MessageBox.Show(ToHexString(sha512.Hash) == sha512TextBox.Text ? "Files match!" : "Files are different!");
 					}
 				}
 			}
@@ -163,6 +168,8 @@ namespace FileChecksum
 			sb.AppendLine(sha1TextBox.Text);
 			sb.Append("SHA256: ");
 			sb.AppendLine(sha256TextBox.Text);
+			sb.Append("SHA512: ");
+			sb.AppendLine(sha512TextBox.Text);
 			sb.Append("CRC32: ");
 			sb.Append(crc32TextBox.Text);
 
@@ -208,7 +215,7 @@ namespace FileChecksum
 					RedirectStandardError = true,
 					StandardOutputEncoding = Encoding.GetEncoding(850),
 					StandardErrorEncoding = Encoding.GetEncoding(850),
-					Arguments = string.Format("--verify \"{0}\" \"{1}\"", ascofd.FileName, pathLabel.Text)
+					Arguments = $"--verify \"{ascofd.FileName}\" \"{pathLabel.Text}\""
 				}))
 				{
 					var output = process.StandardOutput.ReadToEnd();
