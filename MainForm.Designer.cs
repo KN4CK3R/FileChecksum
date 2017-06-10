@@ -47,16 +47,17 @@
 			// 
 			// pathLabel
 			// 
-			this.pathLabel.Location = new System.Drawing.Point(6, 9);
+			this.pathLabel.Location = new System.Drawing.Point(7, 9);
 			this.pathLabel.Name = "pathLabel";
 			this.pathLabel.Size = new System.Drawing.Size(478, 13);
 			this.pathLabel.TabIndex = 0;
+			this.pathLabel.Text = "<>";
 			this.pathLabel.Paint += new System.Windows.Forms.PaintEventHandler(this.pathLabel_Paint);
 			// 
 			// md5Label
 			// 
 			this.md5Label.AutoSize = true;
-			this.md5Label.Location = new System.Drawing.Point(6, 33);
+			this.md5Label.Location = new System.Drawing.Point(5, 59);
 			this.md5Label.Name = "md5Label";
 			this.md5Label.Size = new System.Drawing.Size(33, 13);
 			this.md5Label.TabIndex = 1;
@@ -64,26 +65,26 @@
 			// 
 			// md5TextBox
 			// 
-			this.md5TextBox.Location = new System.Drawing.Point(60, 30);
+			this.md5TextBox.Location = new System.Drawing.Point(59, 56);
 			this.md5TextBox.Name = "md5TextBox";
 			this.md5TextBox.ReadOnly = true;
-			this.md5TextBox.Size = new System.Drawing.Size(424, 20);
+			this.md5TextBox.Size = new System.Drawing.Size(425, 20);
 			this.md5TextBox.TabIndex = 2;
 			this.md5TextBox.TabStop = false;
 			// 
 			// sha1TextBox
 			// 
-			this.sha1TextBox.Location = new System.Drawing.Point(60, 56);
+			this.sha1TextBox.Location = new System.Drawing.Point(59, 82);
 			this.sha1TextBox.Name = "sha1TextBox";
 			this.sha1TextBox.ReadOnly = true;
-			this.sha1TextBox.Size = new System.Drawing.Size(424, 20);
+			this.sha1TextBox.Size = new System.Drawing.Size(425, 20);
 			this.sha1TextBox.TabIndex = 4;
 			this.sha1TextBox.TabStop = false;
 			// 
 			// sha1Label
 			// 
 			this.sha1Label.AutoSize = true;
-			this.sha1Label.Location = new System.Drawing.Point(6, 59);
+			this.sha1Label.Location = new System.Drawing.Point(5, 85);
 			this.sha1Label.Name = "sha1Label";
 			this.sha1Label.Size = new System.Drawing.Size(38, 13);
 			this.sha1Label.TabIndex = 3;
@@ -91,7 +92,7 @@
 			// 
 			// sha256TextBox
 			// 
-			this.sha256TextBox.Location = new System.Drawing.Point(59, 82);
+			this.sha256TextBox.Location = new System.Drawing.Point(59, 108);
 			this.sha256TextBox.Name = "sha256TextBox";
 			this.sha256TextBox.ReadOnly = true;
 			this.sha256TextBox.Size = new System.Drawing.Size(425, 20);
@@ -101,7 +102,7 @@
 			// sha256Label
 			// 
 			this.sha256Label.AutoSize = true;
-			this.sha256Label.Location = new System.Drawing.Point(5, 85);
+			this.sha256Label.Location = new System.Drawing.Point(5, 111);
 			this.sha256Label.Name = "sha256Label";
 			this.sha256Label.Size = new System.Drawing.Size(50, 13);
 			this.sha256Label.TabIndex = 7;
@@ -109,7 +110,7 @@
 			// 
 			// crc32TextBox
 			// 
-			this.crc32TextBox.Location = new System.Drawing.Point(59, 148);
+			this.crc32TextBox.Location = new System.Drawing.Point(59, 30);
 			this.crc32TextBox.Name = "crc32TextBox";
 			this.crc32TextBox.ReadOnly = true;
 			this.crc32TextBox.Size = new System.Drawing.Size(425, 20);
@@ -119,7 +120,7 @@
 			// crc32Label
 			// 
 			this.crc32Label.AutoSize = true;
-			this.crc32Label.Location = new System.Drawing.Point(5, 151);
+			this.crc32Label.Location = new System.Drawing.Point(5, 33);
 			this.crc32Label.Name = "crc32Label";
 			this.crc32Label.Size = new System.Drawing.Size(44, 13);
 			this.crc32Label.TabIndex = 9;
@@ -128,7 +129,7 @@
 			// compareButton
 			// 
 			this.compareButton.Enabled = false;
-			this.compareButton.Location = new System.Drawing.Point(8, 174);
+			this.compareButton.Location = new System.Drawing.Point(8, 177);
 			this.compareButton.Name = "compareButton";
 			this.compareButton.Size = new System.Drawing.Size(163, 23);
 			this.compareButton.TabIndex = 11;
@@ -140,7 +141,7 @@
 			// clipBoardButton
 			// 
 			this.clipBoardButton.Enabled = false;
-			this.clipBoardButton.Location = new System.Drawing.Point(332, 174);
+			this.clipBoardButton.Location = new System.Drawing.Point(333, 177);
 			this.clipBoardButton.Name = "clipBoardButton";
 			this.clipBoardButton.Size = new System.Drawing.Size(152, 23);
 			this.clipBoardButton.TabIndex = 12;
@@ -151,7 +152,7 @@
 			// verifyPGPButton
 			// 
 			this.verifyPGPButton.Enabled = false;
-			this.verifyPGPButton.Location = new System.Drawing.Point(177, 174);
+			this.verifyPGPButton.Location = new System.Drawing.Point(176, 177);
 			this.verifyPGPButton.Name = "verifyPGPButton";
 			this.verifyPGPButton.Size = new System.Drawing.Size(152, 23);
 			this.verifyPGPButton.TabIndex = 13;
@@ -161,7 +162,7 @@
 			// 
 			// sha512TextBox
 			// 
-			this.sha512TextBox.Location = new System.Drawing.Point(59, 108);
+			this.sha512TextBox.Location = new System.Drawing.Point(59, 134);
 			this.sha512TextBox.Multiline = true;
 			this.sha512TextBox.Name = "sha512TextBox";
 			this.sha512TextBox.ReadOnly = true;
@@ -172,7 +173,7 @@
 			// sha512Label
 			// 
 			this.sha512Label.AutoSize = true;
-			this.sha512Label.Location = new System.Drawing.Point(5, 111);
+			this.sha512Label.Location = new System.Drawing.Point(5, 137);
 			this.sha512Label.Name = "sha512Label";
 			this.sha512Label.Size = new System.Drawing.Size(50, 13);
 			this.sha512Label.TabIndex = 14;

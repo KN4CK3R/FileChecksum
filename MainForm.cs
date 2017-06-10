@@ -14,44 +14,47 @@ namespace FileChecksum
 	{
 		private class ChecksumResult
 		{
+			public string CRC32;
 			public string MD5;
 			public string SHA1;
 			public string SHA256;
 			public string SHA512;
-			public string CRC32;
 		}
 
 		public MainForm(string path)
 		{
 			InitializeComponent();
 
+			crc32TextBox.Text =
 			md5TextBox.Text =
 			sha1TextBox.Text =
 			sha256TextBox.Text =
-			sha512TextBox.Text =
-			crc32TextBox.Text = "please wait";
+			sha512TextBox.Text = "please wait";
 
 			pathLabel.Text = path;
 
 			var worker = new BackgroundWorker();
 			worker.DoWork += delegate(object sender, DoWorkEventArgs e)
 			{
-				using (var f = File.OpenRead(path))
+				using (var stream = File.OpenRead(path))
 				{
-					using (var md5 = MD5.Create())
+					using (var crc32 = CRC32.Create())
 					{
-						using (var sha1 = SHA1.Create())
+						using (var md5 = MD5.Create())
 						{
-							using (var sha256 = SHA256.Create())
+							using (var sha1 = SHA1.Create())
 							{
-								using (var sha512 = SHA512.Create())
+								using (var sha256 = SHA256.Create())
 								{
-									using (var crc32 = CRC32.Create())
+									using (var sha512 = SHA512.Create())
 									{
 										var buffer = new byte[4096];
 										int count;
-										while ((count = f.Read(buffer, 0, buffer.Length)) > 0)
+										while ((count = stream.Read(buffer, 0, buffer.Length)) > 0)
 										{
+											var crc32Offset = 0;
+											while (crc32Offset < count)
+												crc32Offset += crc32.TransformBlock(buffer, crc32Offset, count - crc32Offset, buffer, crc32Offset);
 											var md5Offset = 0;
 											while (md5Offset < count)
 												md5Offset += md5.TransformBlock(buffer, md5Offset, count - md5Offset, buffer, md5Offset);
@@ -64,24 +67,21 @@ namespace FileChecksum
 											var sha512Offset = 0;
 											while (sha512Offset < count)
 												sha512Offset += sha512.TransformBlock(buffer, sha512Offset, count - sha512Offset, buffer, sha512Offset);
-											var crc32Offset = 0;
-											while (crc32Offset < count)
-												crc32Offset += crc32.TransformBlock(buffer, crc32Offset, count - crc32Offset, buffer, crc32Offset);
 										}
 
+										crc32.TransformFinalBlock(buffer, 0, 0);
 										md5.TransformFinalBlock(buffer, 0, 0);
 										sha1.TransformFinalBlock(buffer, 0, 0);
 										sha256.TransformFinalBlock(buffer, 0, 0);
 										sha512.TransformFinalBlock(buffer, 0, 0);
-										crc32.TransformFinalBlock(buffer, 0, 0);
 
 										e.Result = new ChecksumResult
 										{
+											CRC32 = $"{crc32.CRC32Hash:X4}",
 											MD5 = ToHexString(md5.Hash),
 											SHA1 = ToHexString(sha1.Hash),
 											SHA256 = ToHexString(sha256.Hash),
-											SHA512 = ToHexString(sha512.Hash),
-											CRC32 = $"{crc32.CRC32Hash:X4}"
+											SHA512 = ToHexString(sha512.Hash)
 										};
 									}
 								}
@@ -93,11 +93,11 @@ namespace FileChecksum
 			worker.RunWorkerCompleted += delegate(object sender, RunWorkerCompletedEventArgs e)
 			{
 				var result = (ChecksumResult)e.Result;
+				crc32TextBox.Text = result.CRC32;
 				md5TextBox.Text = result.MD5;
 				sha1TextBox.Text = result.SHA1;
 				sha256TextBox.Text = result.SHA256;
 				sha512TextBox.Text = result.SHA512;
-				crc32TextBox.Text = result.CRC32;
 
 				compareButton.Enabled = verifyPGPButton.Enabled = clipBoardButton.Enabled = true;
 			};
@@ -162,6 +162,8 @@ namespace FileChecksum
 			var sb = new StringBuilder();
 			sb.Append("File: ");
 			sb.AppendLine(Path.GetFileName(pathLabel.Text));
+			sb.Append("CRC32: ");
+			sb.Append(crc32TextBox.Text);
 			sb.Append("MD5: ");
 			sb.AppendLine(md5TextBox.Text);
 			sb.Append("SHA1: ");
@@ -170,8 +172,6 @@ namespace FileChecksum
 			sb.AppendLine(sha256TextBox.Text);
 			sb.Append("SHA512: ");
 			sb.AppendLine(sha512TextBox.Text);
-			sb.Append("CRC32: ");
-			sb.Append(crc32TextBox.Text);
 
 			Clipboard.SetText(sb.ToString());
 		}
@@ -205,8 +205,7 @@ namespace FileChecksum
 			};
 			if (ascofd.ShowDialog() == DialogResult.OK)
 			{
-				var enc = new ProcessStartInfo().StandardErrorEncoding;
-				using (var process = Process.Start(new ProcessStartInfo()
+				using (var process = Process.Start(new ProcessStartInfo
 				{
 					FileName = ini.GetSetting(section, setting),
 					CreateNoWindow = true,
