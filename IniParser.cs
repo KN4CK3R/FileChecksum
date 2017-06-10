@@ -1,15 +1,15 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace FileChecksum
 {
 	public class IniParser
 	{
-		private Dictionary<string, Dictionary<string, string>> sections;
+		private readonly Dictionary<string, Dictionary<string, string>> sections;
 
-		private string path;
+		private readonly string path;
 
 		/// <summary>
 		/// Opens the INI file at the given path and enumerates the values in the IniParser.
@@ -61,8 +61,7 @@ namespace FileChecksum
 
 		public bool HasSetting(string section, string setting)
 		{
-			Dictionary<string, string> temp;
-			if (sections.TryGetValue(section,out temp))
+			if (sections.TryGetValue(section, out var temp))
 			{
 				return temp.ContainsKey(setting);
 			}
@@ -74,7 +73,7 @@ namespace FileChecksum
 		/// Returns the value for the given section, key pair.
 		/// </summary>
 		/// <param name="section">Section name.</param>
-		/// <param name="settinge">Key name.</param>
+		/// <param name="setting">Key name.</param>
 		public string GetSetting(string section, string setting)
 		{
 			return sections[section][setting];
@@ -83,21 +82,14 @@ namespace FileChecksum
 		/// <summary>
 		/// Enumerates all lines for given section.
 		/// </summary>
-		/// <param name="sectionName">Section to enum.</param>
 		public IEnumerator<string> EnumerateSections()
 		{
-			foreach (var kv in sections)
-			{
-				yield return kv.Key;
-			}
+			return sections.Select(kv => kv.Key).GetEnumerator();
 		}
 
 		public IEnumerator<string> EnumerateSectionSettings(string section)
 		{
-			foreach (var kv in sections[section])
-			{
-				yield return kv.Key;
-			}
+			return sections[section].Select(kv => kv.Key).GetEnumerator();
 		}
 
 		/// <summary>
@@ -113,16 +105,15 @@ namespace FileChecksum
 		/// <summary>
 		/// Adds or replaces a setting to the table to be saved.
 		/// </summary>
-		/// <param name="sectionName">Section to add under.</param>
-		/// <param name="settingName">Key name to add.</param>
-		/// <param name="settingValue">Value of key.</param>
+		/// <param name="section">Section to add under.</param>
+		/// <param name="setting">Key name to add.</param>
+		/// <param name="value">Value of key.</param>
 		public void AddSetting(string section, string setting, string value)
 		{
 			section = section.ToUpper();
 			setting = setting.ToUpper();
 
-			Dictionary<string, string> temp;
-			if (!sections.TryGetValue(section, out temp))
+			if (!sections.TryGetValue(section, out var temp))
 			{
 				temp = new Dictionary<string, string>();
 				sections.Add(section, temp);
@@ -135,7 +126,6 @@ namespace FileChecksum
 		/// Remove a setting.
 		/// </summary>
 		/// <param name="section">Section to add under.</param>
-		/// <param name="setting">Key name to add.</param>
 		public void DeleteSection(string section)
 		{
 			sections.Remove(section.ToUpper());
@@ -151,8 +141,7 @@ namespace FileChecksum
 			section = section.ToUpper();
 			setting = setting.ToUpper();
 
-			Dictionary<string, string> temp;
-			if (!sections.TryGetValue(section, out temp))
+			if (!sections.TryGetValue(section, out var temp))
 			{
 				temp = new Dictionary<string, string>();
 				sections.Add(section, temp);
@@ -172,7 +161,7 @@ namespace FileChecksum
 		/// <summary>
 		/// Save settings to new file.
 		/// </summary>
-		/// <param name="newFilePath">New file path.</param>
+		/// <param name="path">New file path.</param>
 		public void SaveSettings(string path)
 		{
 			var sb = new StringBuilder();
