@@ -179,8 +179,8 @@ namespace FileChecksum
 		private void verifyPGPButton_Click(object sender, EventArgs e)
 		{
 			var ini = new IniParser(Path.Combine(Path.GetDirectoryName(Application.ExecutablePath), "config.ini"));
-			var section = "PGP";
-			var setting = "PATH";
+			const string section = "PGP";
+			const string setting = "PATH";
 
 			if (!ini.HasSetting(section, setting))
 			{
@@ -198,37 +198,42 @@ namespace FileChecksum
 				ini.SaveSettings();
 			}
 
-			var ascofd = new OpenFileDialog()
+			using (var dlg = new OpenFileDialog
 			{
 				Title = "Please select the signature file:",
 				Filter = "Signature (*.asc, *.sig)|*.asc; *.sig|All Files|*.*"
-			};
-			if (ascofd.ShowDialog() == DialogResult.OK)
+			})
 			{
-				using (var process = Process.Start(new ProcessStartInfo
+				if (dlg.ShowDialog() == DialogResult.OK)
 				{
-					FileName = ini.GetSetting(section, setting),
-					CreateNoWindow = true,
-					UseShellExecute = false,
-					RedirectStandardOutput = true,
-					RedirectStandardError = true,
-					StandardOutputEncoding = Encoding.GetEncoding(850),
-					StandardErrorEncoding = Encoding.GetEncoding(850),
-					Arguments = $"--verify \"{ascofd.FileName}\" \"{pathLabel.Text}\""
-				}))
-				{
-					var output = process.StandardOutput.ReadToEnd();
-					if (string.IsNullOrEmpty(output))
+					using (var process = Process.Start(new ProcessStartInfo
 					{
-						output = process.StandardError.ReadToEnd(); //GnuPG only writes in the error stream...
+						FileName = ini.GetSetting(section, setting),
+						CreateNoWindow = true,
+						UseShellExecute = false,
+						RedirectStandardOutput = true,
+						RedirectStandardError = true,
+						StandardOutputEncoding = Encoding.GetEncoding(850),
+						StandardErrorEncoding = Encoding.GetEncoding(850),
+						Arguments = $"--verify \"{dlg.FileName}\" \"{pathLabel.Text}\""
+					}))
+					{
+						if (process != null)
+						{
+							var output = process.StandardOutput.ReadToEnd();
+							if (string.IsNullOrEmpty(output))
+							{
+								output = process.StandardError.ReadToEnd(); //GnuPG only writes in the error stream...
+							}
+
+							process.WaitForExit();
+
+							var sb = new StringBuilder();
+							sb.AppendFormat("The signature does {0}.\n\nPGP Output:\n", process.ExitCode == 0 ? "match" : "NOT match");
+							sb.Append(output);
+							MessageBox.Show(sb.ToString());
+						}
 					}
-
-					process.WaitForExit();
-
-					var sb = new StringBuilder();
-					sb.AppendFormat("The signature does {0}.\n\nPGP Output:\n", process.ExitCode == 0 ? "match" : "NOT match");
-					sb.Append(output);
-					MessageBox.Show(sb.ToString());
 				}
 			}
 		}
