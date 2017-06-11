@@ -33,7 +33,7 @@ namespace FileChecksum
 
 			pathLabel.Text = path;
 
-			var worker = new BackgroundWorker();
+			var worker = new BackgroundWorker { WorkerReportsProgress = true };
 			worker.DoWork += delegate(object sender, DoWorkEventArgs e)
 			{
 				using (var stream = File.OpenRead(path))
@@ -48,9 +48,11 @@ namespace FileChecksum
 								{
 									using (var sha512 = SHA512.Create())
 									{
-										var buffer = new byte[4096];
+										var totalLength = (double)stream.Length;
+
+										var buffer = new byte[81920];
 										int count;
-										while ((count = stream.Read(buffer, 0, buffer.Length)) > 0)
+										for (long readBytes = 0; (count = stream.Read(buffer, 0, buffer.Length)) > 0; readBytes += count)
 										{
 											var crc32Offset = 0;
 											while (crc32Offset < count)
@@ -67,6 +69,10 @@ namespace FileChecksum
 											var sha512Offset = 0;
 											while (sha512Offset < count)
 												sha512Offset += sha512.TransformBlock(buffer, sha512Offset, count - sha512Offset, buffer, sha512Offset);
+
+											var percentComplete = (int)((readBytes / totalLength) * 100);
+
+											worker.ReportProgress(percentComplete);
 										}
 
 										crc32.TransformFinalBlock(buffer, 0, 0);
@@ -89,6 +95,13 @@ namespace FileChecksum
 						}
 					}
 				}
+			};
+			worker.ProgressChanged += (sender, args) => {
+				crc32TextBox.Text =
+				md5TextBox.Text =
+				sha1TextBox.Text =
+				sha256TextBox.Text =
+				sha512TextBox.Text = $"{args.ProgressPercentage}%";
 			};
 			worker.RunWorkerCompleted += delegate(object sender, RunWorkerCompletedEventArgs e)
 			{
