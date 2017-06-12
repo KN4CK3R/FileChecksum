@@ -21,6 +21,8 @@ namespace FileChecksum
 			public string SHA512;
 		}
 
+		private ChecksumResult result;
+
 		public MainForm(string path)
 		{
 			InitializeComponent();
@@ -49,8 +51,9 @@ namespace FileChecksum
 									using (var sha512 = SHA512.Create())
 									{
 										var totalLength = (double)stream.Length;
+										var lastPercentComplete = -1;
 
-										var buffer = new byte[81920];
+										var buffer = new byte[4096];
 										int count;
 										for (long readBytes = 0; (count = stream.Read(buffer, 0, buffer.Length)) > 0; readBytes += count)
 										{
@@ -71,8 +74,12 @@ namespace FileChecksum
 												sha512Offset += sha512.TransformBlock(buffer, sha512Offset, count - sha512Offset, buffer, sha512Offset);
 
 											var percentComplete = (int)((readBytes / totalLength) * 100);
+											if (percentComplete != lastPercentComplete)
+											{
+												worker.ReportProgress(percentComplete);
 
-											worker.ReportProgress(percentComplete);
+												lastPercentComplete = percentComplete;
+											}
 										}
 
 										crc32.TransformFinalBlock(buffer, 0, 0);
@@ -81,7 +88,7 @@ namespace FileChecksum
 										sha256.TransformFinalBlock(buffer, 0, 0);
 										sha512.TransformFinalBlock(buffer, 0, 0);
 
-										e.Result = new ChecksumResult
+										result = new ChecksumResult
 										{
 											CRC32 = $"{crc32.CRC32Hash:X4}",
 											MD5 = ToHexString(md5.Hash),
@@ -105,7 +112,6 @@ namespace FileChecksum
 			};
 			worker.RunWorkerCompleted += delegate(object sender, RunWorkerCompletedEventArgs e)
 			{
-				var result = (ChecksumResult)e.Result;
 				crc32TextBox.Text = result.CRC32;
 				md5TextBox.Text = result.MD5;
 				sha1TextBox.Text = result.SHA1;
@@ -164,7 +170,7 @@ namespace FileChecksum
 
 						sha512.TransformFinalBlock(buffer, 0, 0);
 
-						MessageBox.Show(ToHexString(sha512.Hash) == sha512TextBox.Text ? "Files match!" : "Files are different!");
+						MessageBox.Show(ToHexString(sha512.Hash) == result.SHA512 ? "Files match!" : "Files are different!");
 					}
 				}
 			}
@@ -176,7 +182,7 @@ namespace FileChecksum
 			sb.Append("File: ");
 			sb.AppendLine(Path.GetFileName(pathLabel.Text));
 			sb.Append("CRC32: ");
-			sb.Append(crc32TextBox.Text);
+			sb.AppendLine(crc32TextBox.Text);
 			sb.Append("MD5: ");
 			sb.AppendLine(md5TextBox.Text);
 			sb.Append("SHA1: ");
@@ -184,7 +190,7 @@ namespace FileChecksum
 			sb.Append("SHA256: ");
 			sb.AppendLine(sha256TextBox.Text);
 			sb.Append("SHA512: ");
-			sb.AppendLine(sha512TextBox.Text);
+			sb.Append(sha512TextBox.Text);
 
 			Clipboard.SetText(sb.ToString());
 		}
