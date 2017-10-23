@@ -103,14 +103,15 @@ namespace FileChecksum
 					}
 				}
 			};
-			worker.ProgressChanged += (sender, args) => {
+			worker.ProgressChanged += (sender, args) =>
+			{
 				crc32TextBox.Text =
 				md5TextBox.Text =
 				sha1TextBox.Text =
 				sha256TextBox.Text =
 				sha512TextBox.Text = $"{args.ProgressPercentage}%";
 			};
-			worker.RunWorkerCompleted += delegate(object sender, RunWorkerCompletedEventArgs e)
+			worker.RunWorkerCompleted += (sender, args) =>
 			{
 				crc32TextBox.Text = result.CRC32;
 				md5TextBox.Text = result.MD5;
